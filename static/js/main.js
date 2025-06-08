@@ -119,6 +119,8 @@ function resetScreen() {
   ocrBtn1.disabled = true;
   const ocrBtn2 = document.getElementById("ocrBtn2");
   ocrBtn2.disabled = true;
+  const ocrPauseBtn = document.getElementById("ocrPauseBtn");
+  ocrPauseBtn.disabled = true;
   const resetBtn = document.getElementById("resetBtn");
   resetBtn.disabled = true;
 
@@ -281,8 +283,8 @@ document.getElementById("ocrBtn1").onclick = async function () {
       rectangle: {
         left: mapNameParam.xStart,
         top: mapNameParam.yStart,
-        width: mapNameParam.xEnd - mapNameParam.xStart,
-        height: mapNameParam.yEnd - mapNameParam.yStart,
+        width: mapNameParam.width,
+        height: mapNameParam.height,
       }
     });
 
@@ -297,8 +299,8 @@ document.getElementById("ocrBtn1").onclick = async function () {
       rectangle: {
         left: dialogParams.xStart,
         top: dialogParams.yStart,
-        width: dialogParams.xEnd - dialogParams.xStart,
-        height: dialogParams.yEnd - dialogParams.yStart,
+        width: dialogParams.width,
+        height: dialogParams.height,
       }
     });
 
@@ -350,7 +352,12 @@ document.getElementById("ocrBtn2").onclick = async function () {
 
     const canvas = document.getElementById("canvas");
     if (canvas.width === 0 || canvas.height === 0) {
-      alert("目前沒有可辨識的畫面！");
+      console.log("目前沒有可辨識的畫面！");
+      return;
+    }
+
+    if (!timesWorker || !resultWorker) {
+      console.log("worker 尚未初始化");
       return;
     }
 
@@ -359,8 +366,8 @@ document.getElementById("ocrBtn2").onclick = async function () {
       rectangle: {
         left: timesParams.xStart,
         top: timesParams.yStart,
-        width: timesParams.xEnd - timesParams.xStart,
-        height: timesParams.yEnd - timesParams.yStart,
+        width: timesParams.width,
+        height: timesParams.height,
       }
     });
 
@@ -374,8 +381,8 @@ document.getElementById("ocrBtn2").onclick = async function () {
       rectangle: {
         left: resultParams.xStart,
         top: resultParams.yStart,
-        width: resultParams.xEnd - resultParams.xStart,
-        height: resultParams.yEnd - resultParams.yStart,
+        width: resultParams.width,
+        height: resultParams.height,
       }
     });
 
