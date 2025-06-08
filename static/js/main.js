@@ -68,16 +68,16 @@ function startCaptureLoop(video) {
 
     // map name
     // captureRect("c1", getParamsByScale(defaultMapNameParams, videoScale));
-    drawStrokeRect(ctx, getParamsByScale(defaultMapNameParams, videoScale));
+    // drawStrokeRect(ctx, getParamsByScale(defaultMapNameParams, videoScale));
     // dialog
     // captureRect("c2", getParamsByScale(defaultDialogParams, videoScale));
-    drawStrokeRect(ctx, getParamsByScale(defaultDialogParams, videoScale));
+    // drawStrokeRect(ctx, getParamsByScale(defaultDialogParams, videoScale));
     // times
     // captureRect("c3", getParamsByScale(defaultTimesParams, videoScale));
-    drawStrokeRect(ctx, getParamsByScale(defaultTimesParams, videoScale));
+    // drawStrokeRect(ctx, getParamsByScale(defaultTimesParams, videoScale));
     // result
     // captureRect("c4", getParamsByScale(defaultResultParams, videoScale));
-    drawStrokeRect(ctx, getParamsByScale(defaultResultParams, videoScale));
+    // drawStrokeRect(ctx, getParamsByScale(defaultResultParams, videoScale));
   }
 
   function captureRect(id, options) {
