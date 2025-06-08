@@ -19,6 +19,21 @@ let videoScale = 1;
 let captureIntervalId = null;
 let ocrIntervalId = null;
 
+// 定義頁面元素變數
+const shareScreenBtn = document.getElementById("shareScreenBtn");
+const ocrBtn1 = document.getElementById("ocrBtn1");
+const ocrBtn2 = document.getElementById("ocrBtn2");
+const ocrPauseBtn = document.getElementById("ocrPauseBtn");
+const resetBtn = document.getElementById("resetBtn");
+const videoInfo = document.getElementById("videoInfo");
+const screenVideo = document.getElementById("screenVideo");
+const coordinate = document.getElementById("coordinate");
+const capture = document.getElementById("capture");
+const mark1 = document.getElementById("mark1");
+const mark2 = document.getElementById("mark2");
+const mark3 = document.getElementById("mark3");
+const mark4 = document.getElementById("mark4");
+
 function getParamsByScale(params, scale) {
   return {
     color: params.color,
@@ -31,141 +46,127 @@ function getParamsByScale(params, scale) {
   };
 }
 
-function startCaptureLoop(video) {
-  function captureFrame() {
-    const canvas = document.getElementById("canvas");
-    // 動態調整 canvas 大小以符合影片
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    // canvas.style.display = "block";
+function captureRect(id, options) {
+  const rect = document.getElementById(id);
+  rect.style.display = "block";
 
-    // 監聽滑鼠移動事件，取得滑鼠座標
-    canvas.addEventListener("mousemove", function (e) {
-      const rect = e.target.getBoundingClientRect();
-      let mouseX = e.clientX - rect.left;
-      let mouseY = e.clientY - rect.top;
+  rect.width = options.width;
+  rect.height = options.height;
+  const ctx = rect.getContext("2d");
+  ctx.drawImage(
+    video,
+    options.xStart,
+    options.yStart,
+    options.width,
+    options.height,
+    0,
+    0,
+    options.width,
+    options.height
+  );
+}
 
-      if (mouseX !== null && mouseY !== null) {
-        const coordinate = document.getElementById("coordinate");
-        coordinate.textContent = `滑鼠位置：(${mouseX.toFixed(0)}, ${mouseY.toFixed(0)})`;
-        // coordinate.style.display = "block";
-      }
-    });
+function drawStrokeRect(ctx, options) {
+  ctx.strokeStyle = options.color || "black";
+  ctx.lineWidth = 2; options.xStart
+  ctx.strokeRect(options.xStart, options.yStart, options.width, options.height);
+}
 
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+function processCapture(video) {
+  // 動態調整 capture 大小以符合影片
+  capture.width = video.videoWidth;
+  capture.height = video.videoHeight;
+  // capture.style.display = "block";
 
-    // 加強對比度
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const threshold = 210; // 灰階閾值
-    const data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-      // 灰階公式：0.299*R + 0.587*G + 0.114*B
-      const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-      data[i] = data[i + 1] = data[i + 2] = gray > threshold ? 255 : 0; // 將灰階值轉為黑白
+  // 監聽滑鼠移動事件，取得滑鼠座標
+  capture.addEventListener("mousemove", function (e) {
+    const captureRect = e.target.getBoundingClientRect();
+    let mouseX = e.clientX - captureRect.left;
+    let mouseY = e.clientY - captureRect.top;
+
+    if (mouseX !== null && mouseY !== null) {
+      coordinate.textContent = `滑鼠位置：(${mouseX.toFixed(0)}, ${mouseY.toFixed(0)})`;
+      // coordinate.style.display = "block";
     }
-    ctx.putImageData(imageData, 0, 0);
+  });
 
-    // map name
-    // captureRect("c1", getParamsByScale(defaultMapNameParams, videoScale));
-    // drawStrokeRect(ctx, getParamsByScale(defaultMapNameParams, videoScale));
-    // dialog
-    // captureRect("c2", getParamsByScale(defaultDialogParams, videoScale));
-    // drawStrokeRect(ctx, getParamsByScale(defaultDialogParams, videoScale));
-    // times
-    // captureRect("c3", getParamsByScale(defaultTimesParams, videoScale));
-    // drawStrokeRect(ctx, getParamsByScale(defaultTimesParams, videoScale));
-    // result
-    // captureRect("c4", getParamsByScale(defaultResultParams, videoScale));
-    // drawStrokeRect(ctx, getParamsByScale(defaultResultParams, videoScale));
+  const captureCtx = capture.getContext("2d");
+  captureCtx.drawImage(video, 0, 0, capture.width, capture.height);
+
+  // 加強對比度
+  const imageData = captureCtx.getImageData(0, 0, capture.width, capture.height);
+  const threshold = 210; // 灰階閾值
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    // 灰階公式：0.299*R + 0.587*G + 0.114*B
+    const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+    data[i] = data[i + 1] = data[i + 2] = gray > threshold ? 255 : 0; // 將灰階值轉為黑白
   }
+  captureCtx.putImageData(imageData, 0, 0);
 
-  function captureRect(id, options) {
-    const canvas = document.getElementById(id);
-    canvas.style.display = "block";
+  // map name
+  // captureRect("c1", getParamsByScale(defaultMapNameParams, videoScale));
+  // drawStrokeRect(ctx, getParamsByScale(defaultMapNameParams, videoScale));
+  // dialog
+  // captureRect("c2", getParamsByScale(defaultDialogParams, videoScale));
+  // drawStrokeRect(ctx, getParamsByScale(defaultDialogParams, videoScale));
+  // times
+  // captureRect("c3", getParamsByScale(defaultTimesParams, videoScale));
+  // drawStrokeRect(ctx, getParamsByScale(defaultTimesParams, videoScale));
+  // result
+  // captureRect("c4", getParamsByScale(defaultResultParams, videoScale));
+  // drawStrokeRect(ctx, getParamsByScale(defaultResultParams, videoScale));
+}
 
-    canvas.width = options.width;
-    canvas.height = options.height;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(
-      video,
-      options.xStart,
-      options.yStart,
-      options.width,
-      options.height,
-      0,
-      0,
-      options.width,
-      options.height
-    );
-  }
-
-  function drawStrokeRect(ctx, options) {
-    ctx.strokeStyle = options.color || "black";
-    ctx.lineWidth = 2; options.xStart
-    ctx.strokeRect(options.xStart, options.yStart, options.width, options.height);
-  }
-
+function startCaptureLoop(video) {
   // 每200ms截圖一次
   if (captureIntervalId) clearInterval(captureIntervalId);
-  captureIntervalId = setInterval(captureFrame, 200);
+  captureIntervalId = setInterval(() => processCapture(video), 200);
 }
 
 
 function resetScreen() {
-  const shareScreenBtn = document.getElementById("shareScreenBtn");
   shareScreenBtn.disabled = false;
-  const ocrBtn1 = document.getElementById("ocrBtn1");
   ocrBtn1.disabled = true;
-  const ocrBtn2 = document.getElementById("ocrBtn2");
   ocrBtn2.disabled = true;
-  const ocrPauseBtn = document.getElementById("ocrPauseBtn");
   ocrPauseBtn.disabled = true;
-  const resetBtn = document.getElementById("resetBtn");
   resetBtn.disabled = true;
 
-  // 停止螢幕分享
-  const video = document.getElementById("screenVideo");
-  if (video.srcObject) {
-    const tracks = video.srcObject.getTracks();
-    tracks.forEach((track) => track.stop());
-    video.srcObject = null;
-  }
-  video.style.display = "none";
 
-  const videoInfo = document.getElementById("videoInfo");
   videoInfo.textContent = "";
   videoInfo.style.display = "none";
 
-  const coordinate = document.getElementById("coordinate");
+  // 停止螢幕分享
+  if (screenVideo.srcObject) {
+    const tracks = screenVideo.srcObject.getTracks();
+    tracks.forEach((track) => track.stop());
+    screenVideo.srcObject = null;
+  }
+  screenVideo.style.display = "none";
+
   coordinate.textContent = "";
   coordinate.style.display = "none";
 
   // 清空 canvas
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  canvas.style.display = "none";
+  const captureCtx = capture.getContext("2d");
+  captureCtx.clearRect(0, 0, capture.width, capture.height);
+  capture.style.display = "none";
 
-  const c1 = document.getElementById("c1");
-  const c1Ctx = canvas.getContext("2d");
-  c1Ctx.clearRect(0, 0, canvas.width, canvas.height);
-  c1.style.display = "none";
+  const mark1Ctx = mark1.getContext("2d");
+  mark1Ctx.clearRect(0, 0, capture.width, capture.height);
+  mark1.style.display = "none";
 
-  const c2 = document.getElementById("c2");
-  const c2Ctx = canvas.getContext("2d");
-  c2Ctx.clearRect(0, 0, canvas.width, canvas.height);
-  c2.style.display = "none";
+  const mark2Ctx = mark2.getContext("2d");
+  mark2Ctx.clearRect(0, 0, capture.width, capture.height);
+  mark2.style.display = "none";
 
-  const c3 = document.getElementById("c3");
-  const c3Ctx = canvas.getContext("2d");
-  c3Ctx.clearRect(0, 0, canvas.width, canvas.height);
-  c3.style.display = "none";
+  const mark3Ctx = mark3.getContext("2d");
+  mark3Ctx.clearRect(0, 0, capture.width, capture.height);
+  mark3.style.display = "none";
 
-  const c4 = document.getElementById("c4");
-  const c4Ctx = canvas.getContext("2d");
-  c4Ctx.clearRect(0, 0, canvas.width, canvas.height);
-  c4.style.display = "none";
+  const mark4Ctx = mark4.getContext("2d");
+  mark4Ctx.clearRect(0, 0, capture.width, capture.height);
+  mark4.style.display = "none";
 
   // 停止定時截圖
   if (captureIntervalId) {
@@ -179,7 +180,7 @@ function resetScreen() {
   }
 }
 
-document.getElementById("shareScreenBtn").onclick = async function () {
+shareScreenBtn.onclick = async function () {
   try {
     const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
 
@@ -188,29 +189,24 @@ document.getElementById("shareScreenBtn").onclick = async function () {
       resetScreen();
     });
 
-    const video = document.getElementById("screenVideo");
-    video.srcObject = stream;
-    // video.style.display = "block";
+    screenVideo.srcObject = stream;
+    // screenVideo.style.display = "block";
 
     // 當影片流開始播放時，啟動定時截圖
-    video.onloadedmetadata = async () => {
-      this.disabled = true;
-
-      const ocrBtn1 = document.getElementById("ocrBtn1");
+    screenVideo.onloadedmetadata = async () => {
+      shareScreenBtn.disabled = true;
       ocrBtn1.disabled = false;
-      const ocrBtn2 = document.getElementById("ocrBtn2");
       ocrBtn2.disabled = false;
-      const resetBtn = document.getElementById("resetBtn");
       resetBtn.disabled = false;
 
-      const videoInfo = document.getElementById("videoInfo");
       videoInfo.textContent = `辨識影像中...`;
       // videoInfo.textContent = `影片寬度：${video.videoWidth}, 高度：${video.videoHeight}`;
       videoInfo.style.display = "block";
 
-      videoScale = video.videoWidth / videoParam.width;
 
-      startCaptureLoop(video);
+      videoScale = screenVideo.videoWidth / videoParam.width;
+
+      startCaptureLoop(screenVideo);
 
       mapNameWorker = await Tesseract.createWorker("chi_tra", 1, {
         logger: m => {
@@ -270,16 +266,15 @@ document.getElementById("shareScreenBtn").onclick = async function () {
   }
 };
 
-document.getElementById("ocrBtn1").onclick = async function () {
-  const canvas = document.getElementById("canvas");
-  if (canvas.width === 0 || canvas.height === 0) {
+ocrBtn1.onclick = async function () {
+  if (capture.width === 0 || capture.height === 0) {
     alert("目前沒有可辨識的畫面！");
     return;
   }
 
   try {
     const mapNameParam = getParamsByScale(defaultMapNameParams, videoScale);
-    const { data: { text: mapNameText, confidence: mapNameConfidence } } = await mapNameWorker.recognize(canvas, {
+    const { data: { text: mapNameText, confidence: mapNameConfidence } } = await mapNameWorker.recognize(capture, {
       rectangle: {
         left: mapNameParam.xStart,
         top: mapNameParam.yStart,
@@ -295,7 +290,7 @@ document.getElementById("ocrBtn1").onclick = async function () {
     }
 
     const dialogParams = getParamsByScale(defaultDialogParams, videoScale);
-    const { data: { text: dialogText, confidence: dialogConfidence } } = await dialogWorker.recognize(canvas, {
+    const { data: { text: dialogText, confidence: dialogConfidence } } = await dialogWorker.recognize(capture, {
       rectangle: {
         left: dialogParams.xStart,
         top: dialogParams.yStart,
@@ -316,10 +311,8 @@ document.getElementById("ocrBtn1").onclick = async function () {
   }
 };
 
-document.getElementById("ocrBtn2").onclick = async function () {
-  this.disabled = true;
-
-  const ocrPauseBtn = document.getElementById("ocrPauseBtn");
+ocrBtn2.onclick = async function () {
+  ocrBtn2.disabled = true;
   ocrPauseBtn.disabled = false;
 
   // 常數映射表
@@ -350,8 +343,7 @@ document.getElementById("ocrBtn2").onclick = async function () {
   async function performOCR() {
     console.log("開始 OCR 辨識");
 
-    const canvas = document.getElementById("canvas");
-    if (canvas.width === 0 || canvas.height === 0) {
+    if (capture.width === 0 || capture.height === 0) {
       console.log("目前沒有可辨識的畫面！");
       return;
     }
@@ -362,7 +354,7 @@ document.getElementById("ocrBtn2").onclick = async function () {
     }
 
     const timesParams = getParamsByScale(defaultTimesParams, videoScale);
-    const { data: { text: timesText, confidence: timesConfidence } } = await timesWorker.recognize(canvas, {
+    const { data: { text: timesText, confidence: timesConfidence } } = await timesWorker.recognize(capture, {
       rectangle: {
         left: timesParams.xStart,
         top: timesParams.yStart,
@@ -377,7 +369,7 @@ document.getElementById("ocrBtn2").onclick = async function () {
     }
 
     const resultParams = getParamsByScale(defaultResultParams, videoScale);
-    const { data: { text: resultText, confidence: resultConfidence } } = await resultWorker.recognize(canvas, {
+    const { data: { text: resultText, confidence: resultConfidence } } = await resultWorker.recognize(capture, {
       rectangle: {
         left: resultParams.xStart,
         top: resultParams.yStart,
@@ -434,10 +426,8 @@ document.getElementById("ocrBtn2").onclick = async function () {
   ocrIntervalId = setInterval(performOCR, 1000);
 };
 
-document.getElementById("ocrPauseBtn").onclick = function () {
+ocrPauseBtn.onclick = function () {
   this.disabled = true;
-
-  const ocrBtn2 = document.getElementById("ocrBtn2");
   ocrBtn2.disabled = false;
 
   if (ocrIntervalId) {
@@ -446,7 +436,6 @@ document.getElementById("ocrPauseBtn").onclick = function () {
   }
 };
 
-document.getElementById("resetBtn").onclick = function () {
+resetBtn.onclick = function () {
   resetScreen();
 };
-
