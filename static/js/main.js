@@ -74,7 +74,7 @@ function processCapture(video) {
   // 動態調整 capture 大小以符合影片
   capture.width = video.videoWidth;
   capture.height = video.videoHeight;
-  capture.style.display = "block";
+  // capture.style.display = "block";
 
   // 監聽滑鼠移動事件，取得滑鼠座標
   capture.addEventListener("mousemove", function (e) {
@@ -84,7 +84,7 @@ function processCapture(video) {
 
     if (mouseX !== null && mouseY !== null) {
       coordinate.textContent = `滑鼠位置：(${mouseX.toFixed(0)}, ${mouseY.toFixed(0)})`;
-      coordinate.style.display = "block";
+      // coordinate.style.display = "block";
     }
   });
 
@@ -103,23 +103,23 @@ function processCapture(video) {
   captureCtx.putImageData(imageData, 0, 0);
 
   // map name
-  captureRect("mark1", calcParams(defaultMapNameParams));
-  drawStrokeRect(captureCtx, calcParams(defaultMapNameParams));
+  // captureRect("mark1", calcParams(defaultMapNameParams));
+  // drawStrokeRect(captureCtx, calcParams(defaultMapNameParams));
   // dialog
-  captureRect("mark2", calcParams(defaultDialogParams));
-  drawStrokeRect(captureCtx, calcParams(defaultDialogParams));
+  // captureRect("mark2", calcParams(defaultDialogParams));
+  // drawStrokeRect(captureCtx, calcParams(defaultDialogParams));
   // times
-  captureRect("mark3", calcParams(defaultTimesParams));
-  drawStrokeRect(captureCtx, calcParams(defaultTimesParams));
+  // captureRect("mark3", calcParams(defaultTimesParams));
+  // drawStrokeRect(captureCtx, calcParams(defaultTimesParams));
   // result
-  captureRect("mark4", calcParams(defaultResultParams));
-  drawStrokeRect(captureCtx, calcParams(defaultResultParams));
+  // captureRect("mark4", calcParams(defaultResultParams));
+  // drawStrokeRect(captureCtx, calcParams(defaultResultParams));
 }
 
 function startCaptureLoop(video) {
   // 每200ms截圖一次
   if (captureIntervalId) clearInterval(captureIntervalId);
-  captureIntervalId = setInterval(() => processCapture(video), 200);
+  captureIntervalId = setInterval(() => processCapture(video), 100);
 }
 
 
@@ -188,7 +188,7 @@ shareScreenBtn.onclick = async function () {
     });
 
     screenVideo.srcObject = stream;
-    screenVideo.style.display = "block";
+    // screenVideo.style.display = "block";
 
     // 當影片流開始播放時，啟動定時截圖
     screenVideo.onloadedmetadata = async () => {
@@ -359,9 +359,9 @@ ocrBtn2.onclick = async function () {
     });
 
     console.log(`次數辨識文字：${timesText}`)
-    if (timesConfidence < 60) {
-      console.log(`次數信心度較低: ${timesConfidence}%，結果可能不準確`);
-    }
+    // if (timesConfidence < 60) {
+    //   console.log(`次數信心度較低: ${timesConfidence}%，結果可能不準確`);
+    // }
 
     const resultParams = calcParams(defaultResultParams);
     const { data: { text: resultText, confidence: resultConfidence } } = await resultWorker.recognize(capture, {
@@ -374,9 +374,9 @@ ocrBtn2.onclick = async function () {
     });
 
     console.log(`結果辨識文字：${resultText}`)
-    if (resultConfidence < 60) {
-      console.log(`結果信心度較低: ${resultConfidence}%，結果可能不準確`);
-    }
+    // if (resultConfidence < 60) {
+    //   console.log(`結果信心度較低: ${resultConfidence}%，結果可能不準確`);
+    // }
 
     // 尋找嘗試次數
     const attemptMatch = timesText.match(/\s*(\d+)\s*/);
@@ -418,7 +418,7 @@ ocrBtn2.onclick = async function () {
   // 建立定時執行的 OCR 函數
   // 立即執行一次，然後每秒執行一次
   await performOCR();
-  ocrIntervalId = setInterval(performOCR, 1000);
+  ocrIntervalId = setInterval(performOCR, 500);
 };
 
 ocrPauseBtn.onclick = function () {
