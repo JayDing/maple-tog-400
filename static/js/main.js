@@ -54,7 +54,7 @@ function captureRect(id, options) {
   rect.height = options.height;
   const ctx = rect.getContext("2d");
   ctx.drawImage(
-    video,
+    screenVideo,
     options.xStart,
     options.yStart,
     options.width,
@@ -76,7 +76,7 @@ function processCapture(video) {
   // 動態調整 capture 大小以符合影片
   capture.width = video.videoWidth;
   capture.height = video.videoHeight;
-  // capture.style.display = "block";
+  capture.style.display = "block";
 
   // 監聽滑鼠移動事件，取得滑鼠座標
   capture.addEventListener("mousemove", function (e) {
@@ -86,7 +86,7 @@ function processCapture(video) {
 
     if (mouseX !== null && mouseY !== null) {
       coordinate.textContent = `滑鼠位置：(${mouseX.toFixed(0)}, ${mouseY.toFixed(0)})`;
-      // coordinate.style.display = "block";
+      coordinate.style.display = "block";
     }
   });
 
@@ -105,17 +105,17 @@ function processCapture(video) {
   captureCtx.putImageData(imageData, 0, 0);
 
   // map name
-  // captureRect("c1", getParamsByScale(defaultMapNameParams, videoScale));
-  // drawStrokeRect(ctx, getParamsByScale(defaultMapNameParams, videoScale));
+  captureRect("mark1", getParamsByScale(defaultMapNameParams, videoScale));
+  drawStrokeRect(captureCtx, getParamsByScale(defaultMapNameParams, videoScale));
   // dialog
-  // captureRect("c2", getParamsByScale(defaultDialogParams, videoScale));
-  // drawStrokeRect(ctx, getParamsByScale(defaultDialogParams, videoScale));
+  captureRect("mark2", getParamsByScale(defaultDialogParams, videoScale));
+  drawStrokeRect(captureCtx, getParamsByScale(defaultDialogParams, videoScale));
   // times
-  // captureRect("c3", getParamsByScale(defaultTimesParams, videoScale));
-  // drawStrokeRect(ctx, getParamsByScale(defaultTimesParams, videoScale));
+  captureRect("mark3", getParamsByScale(defaultTimesParams, videoScale));
+  drawStrokeRect(captureCtx, getParamsByScale(defaultTimesParams, videoScale));
   // result
-  // captureRect("c4", getParamsByScale(defaultResultParams, videoScale));
-  // drawStrokeRect(ctx, getParamsByScale(defaultResultParams, videoScale));
+  captureRect("mark4", getParamsByScale(defaultResultParams, videoScale));
+  drawStrokeRect(captureCtx, getParamsByScale(defaultResultParams, videoScale));
 }
 
 function startCaptureLoop(video) {
@@ -190,7 +190,7 @@ shareScreenBtn.onclick = async function () {
     });
 
     screenVideo.srcObject = stream;
-    // screenVideo.style.display = "block";
+    screenVideo.style.display = "block";
 
     // 當影片流開始播放時，啟動定時截圖
     screenVideo.onloadedmetadata = async () => {
