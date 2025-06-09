@@ -31,6 +31,7 @@ const mark1 = document.getElementById("mark1");
 const mark2 = document.getElementById("mark2");
 const mark3 = document.getElementById("mark3");
 const mark4 = document.getElementById("mark4");
+const answerDiv = document.getElementById("answer");
 
 function calcParams(params) {
   return {
@@ -166,6 +167,8 @@ function resetScreen() {
   mark4Ctx.clearRect(0, 0, capture.width, capture.height);
   mark4.style.display = "none";
 
+  answerDiv.textContent = "";
+
   // 停止定時截圖
   if (captureIntervalId) {
     clearInterval(captureIntervalId);
@@ -176,6 +179,8 @@ function resetScreen() {
     clearInterval(ocrIntervalId);
     ocrIntervalId = null;
   }
+
+  document.body.className = ''; // 清除背景色
 }
 
 shareScreenBtn.onclick = async function () {
@@ -358,7 +363,7 @@ ocrBtn2.onclick = async function () {
       }
     });
 
-    console.log(`次數辨識文字：${timesText}`)
+    // console.log(`次數辨識文字：${timesText}`)
     // if (timesConfidence < 60) {
     //   console.log(`次數信心度較低: ${timesConfidence}%，結果可能不準確`);
     // }
@@ -381,37 +386,56 @@ ocrBtn2.onclick = async function () {
     // 尋找嘗試次數
     const attemptMatch = timesText.match(/\s*(\d+)\s*/);
     if (attemptMatch) {
-      const attemptNumber = parseInt(attemptMatch[1]);
+        const attemptNumber = parseInt(attemptMatch[1]);
 
-      // 如果看到第1次，重置記錄
-      if (currentAttempt != 0 && attemptNumber === 1) {
-        attempts = [];
-        currentAttempt = 1;
-      } else {
-        currentAttempt = attemptNumber;
-      }
+        // 檢查數字是否合理
+        if (attemptNumber >= 1 && attemptNumber <= 4) {
+            // 修改這部分的邏輯
+            if (attempts.length === 0 || (attemptNumber === 1 && !attempts.includes(null))) {
+                attempts = new Array(4).fill(null);
+                currentAttempt = 1;
+                document.body.className = 'searching';
+            } else {
+                currentAttempt = attemptNumber;
+            }
 
-      // 尋找正確答案數量
-      const correctMatch = resultText.match(/\s*(\d+)\s*/);
-      if (correctMatch && currentAttempt <= 4) {
-        const correctCount = parseInt(correctMatch[1]);
-        attempts[currentAttempt - 1] = correctCount;
+            // 尋找正確答案數量
+            const correctMatch = resultText.match(/\s*(\d+)\s*/);
+            if (correctMatch) {
+                const correctCount = parseInt(correctMatch[1]);
+                attempts[currentAttempt - 1] = correctCount;
 
-        console.log(`第 ${currentAttempt} 次嘗試，正確數量: ${correctCount}`);
-        console.log('目前記錄:', attempts);
+                // 添加閃爍效果
+                document.body.className = 'flash';
+                setTimeout(() => {
+                    // 1秒後恢復原來的狀態
+                    document.body.className = isComplete ? 'found' : 'searching';
+                }, 1000);
 
-        // 當收集到4次數據時，進行對應查詢
-        if (attempts.length === 4) {
-          const key = attempts.join('');
-          const result = resultMapping[key];
+                console.log(`第 ${currentAttempt} 次嘗試，正確數量: ${correctCount}`);
+                console.log('目前記錄:', attempts);
+                
+                // 檢查是否所有值都已填入（沒有 null）
+                const isComplete = attempts.filter(x => x !== null).length === 4;
+                if (isComplete) {
+                    const key = attempts.join('');
+                    const result = resultMapping[key];
 
-          if (result) {
-            console.log('找到對應答案:', result);
-          } else {
-            console.log('錯誤：沒有找到對應答案');
-          }
+                    if (result) {
+                        console.log('找到對應答案:', result);
+                        document.body.className = 'found'; // 找到答案時設為淡綠色
+                        answerDiv.textContent = `答案: ${result}`; // 在畫面上顯示答案
+                      } else {
+                        console.log('錯誤：沒有找到對應答案');
+                        document.body.className = 'searching'; // 沒找到答案時設為淡黃色
+                        answerDiv.textContent = '無法找到對應答案'; // 顯示錯誤訊息
+                      }
+                } else {
+                    document.body.className = 'searching'; // 收集資料時設為淡黃色
+                    answerDiv.textContent = `收集中: ${attempts.join(',')}`; // 顯示目前收集的數據
+                }
+            }
         }
-      }
     }
   }
 
