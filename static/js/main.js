@@ -1,8 +1,8 @@
-const videoParam = { width: 1922, height: 1232 };
+const videoParam = { width: 1920, height: 1200, wDelta: 2, hDelta: 32 };
 const defaultMapNameParams = { color: "red", xStart: 85, yStart: 105, xEnd: 300, yEnd: 140 };
 const defaultDialogParams = { color: "blue", xStart: 740, yStart: 490, xEnd: 1440, yEnd: 710 };
-const defaultTimesParams = { color: "red", xStart: 855, yStart: 572, xEnd: 882, yEnd: 600 };
-const defaultResultParams = { color: "blue", xStart: 805, yStart: 600, xEnd: 832, yEnd: 628 };
+const defaultTimesParams = { color: "red", xStart: 855, yStart: 552, xEnd: 882, yEnd: 580 };
+const defaultResultParams = { color: "blue", xStart: 808, yStart: 590, xEnd: 835, yEnd: 618 };
 
 let mapNameWorker = null;
 let mapNameProgress = 0
@@ -13,8 +13,6 @@ let timesWorker = null;
 let timesProgress = 0;
 let resultWorker = null;
 let resultProgress = 0;
-
-let videoScale = 1;
 
 let captureIntervalId = null;
 let ocrIntervalId = null;
@@ -34,15 +32,15 @@ const mark2 = document.getElementById("mark2");
 const mark3 = document.getElementById("mark3");
 const mark4 = document.getElementById("mark4");
 
-function getParamsByScale(params, scale) {
+function calcParams(params) {
   return {
     color: params.color,
-    xStart: Math.round(params.xStart * scale),
-    yStart: Math.round(params.yStart * scale),
-    xEnd: Math.round(params.xEnd * scale),
-    yEnd: Math.round(params.yEnd * scale),
-    width: Math.round((params.xEnd - params.xStart) * scale),
-    height: Math.round((params.yEnd - params.yStart) * scale)
+    xStart: params.xStart,
+    yStart: params.yStart,
+    xEnd: params.xEnd,
+    yEnd: params.yEnd,
+    width: params.xEnd - params.xStart,
+    height: params.yEnd - params.yStart
   };
 }
 
@@ -105,17 +103,17 @@ function processCapture(video) {
   captureCtx.putImageData(imageData, 0, 0);
 
   // map name
-  captureRect("mark1", getParamsByScale(defaultMapNameParams, videoScale));
-  drawStrokeRect(captureCtx, getParamsByScale(defaultMapNameParams, videoScale));
+  captureRect("mark1", calcParams(defaultMapNameParams));
+  drawStrokeRect(captureCtx, calcParams(defaultMapNameParams));
   // dialog
-  captureRect("mark2", getParamsByScale(defaultDialogParams, videoScale));
-  drawStrokeRect(captureCtx, getParamsByScale(defaultDialogParams, videoScale));
+  captureRect("mark2", calcParams(defaultDialogParams));
+  drawStrokeRect(captureCtx, calcParams(defaultDialogParams));
   // times
-  captureRect("mark3", getParamsByScale(defaultTimesParams, videoScale));
-  drawStrokeRect(captureCtx, getParamsByScale(defaultTimesParams, videoScale));
+  captureRect("mark3", calcParams(defaultTimesParams));
+  drawStrokeRect(captureCtx, calcParams(defaultTimesParams));
   // result
-  captureRect("mark4", getParamsByScale(defaultResultParams, videoScale));
-  drawStrokeRect(captureCtx, getParamsByScale(defaultResultParams, videoScale));
+  captureRect("mark4", calcParams(defaultResultParams));
+  drawStrokeRect(captureCtx, calcParams(defaultResultParams));
 }
 
 function startCaptureLoop(video) {
@@ -203,9 +201,6 @@ shareScreenBtn.onclick = async function () {
       // videoInfo.textContent = `影片寬度：${video.videoWidth}, 高度：${video.videoHeight}`;
       videoInfo.style.display = "block";
 
-
-      videoScale = screenVideo.videoWidth / videoParam.width;
-
       startCaptureLoop(screenVideo);
 
       mapNameWorker = await Tesseract.createWorker("chi_tra", 1, {
@@ -273,7 +268,7 @@ ocrBtn1.onclick = async function () {
   }
 
   try {
-    const mapNameParam = getParamsByScale(defaultMapNameParams, videoScale);
+    const mapNameParam = calcParams(defaultMapNameParams);
     const { data: { text: mapNameText, confidence: mapNameConfidence } } = await mapNameWorker.recognize(capture, {
       rectangle: {
         left: mapNameParam.xStart,
@@ -289,7 +284,7 @@ ocrBtn1.onclick = async function () {
       return;
     }
 
-    const dialogParams = getParamsByScale(defaultDialogParams, videoScale);
+    const dialogParams = calcParams(defaultDialogParams);
     const { data: { text: dialogText, confidence: dialogConfidence } } = await dialogWorker.recognize(capture, {
       rectangle: {
         left: dialogParams.xStart,
@@ -353,7 +348,7 @@ ocrBtn2.onclick = async function () {
       return;
     }
 
-    const timesParams = getParamsByScale(defaultTimesParams, videoScale);
+    const timesParams = calcParams(defaultTimesParams);
     const { data: { text: timesText, confidence: timesConfidence } } = await timesWorker.recognize(capture, {
       rectangle: {
         left: timesParams.xStart,
@@ -368,7 +363,7 @@ ocrBtn2.onclick = async function () {
       console.log(`次數信心度較低: ${timesConfidence}%，結果可能不準確`);
     }
 
-    const resultParams = getParamsByScale(defaultResultParams, videoScale);
+    const resultParams = calcParams(defaultResultParams);
     const { data: { text: resultText, confidence: resultConfidence } } = await resultWorker.recognize(capture, {
       rectangle: {
         left: resultParams.xStart,
