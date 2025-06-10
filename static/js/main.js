@@ -16,7 +16,6 @@ let captureMousemoveEventId = null;
 let captureIntervalId = null;
 let ocrIntervalId = null;
 
-
 // 常數映射表
 const resultMapping = {
   "0011": "211",
@@ -45,6 +44,7 @@ const shareScreenBtn = document.getElementById("shareScreenBtn");
 const ocrBtn = document.getElementById("ocrBtn");
 const ocrPauseBtn = document.getElementById("ocrPauseBtn");
 const resetBtn = document.getElementById("resetBtn");
+const clear = document.getElementById("clear");
 const videoState = document.getElementById("videoState");
 const videoInfo = document.getElementById("videoInfo");
 const screenVideo = document.getElementById("screenVideo");
@@ -172,7 +172,6 @@ function resetScreen() {
   resetBtn.disabled = true;
 
   videoState.textContent = "";
-  videoState.style.display = "none";
   resultInput1.value = "";
   resultInput2.value = "";
   resultInput3.value = "";
@@ -304,9 +303,9 @@ function updateAttemptsAndAnswer(timesText, resultText) {
       }
 
       // 尋找正確答案數量
-      const correctMatch = resultText.match(/\s*(\d+)\s*/);
-      if (correctMatch) {
-        const resultNumber = parseInt(correctMatch[1]);
+      const resultMatch = resultText.match(/\s*(\d+)\s*/);
+      if (resultMatch) {
+        const resultNumber = parseInt(resultMatch[1]);
 
         if (!/^[012]$/.test(resultNumber)) {
           return;
@@ -349,7 +348,7 @@ function updateAttemptsAndAnswer(timesText, resultText) {
 }
 
 function handleResultInput(currentInput, nextInput) {
-  let val = currentInput.value;
+  const val = currentInput.value;
   // 只允許 0, 1, 2
   if (!/^[012]$/.test(val)) {
     currentInput.value = '';
@@ -379,7 +378,6 @@ shareScreenBtn.onclick = async function () {
       startCaptureLoop();
 
       videoState.textContent = "錄影中，請微笑XD";
-      videoState.style.display = "block";
 
       videoInfo.textContent = `影片寬度：${screenVideo.videoWidth}, 高度：${screenVideo.videoHeight}`;
 
@@ -388,7 +386,7 @@ shareScreenBtn.onclick = async function () {
       resetBtn.disabled = false;
     };
   } catch (err) {
-    alert(`無法分享螢幕：${err}`);
+    console.error("無法分享螢幕：", err);
   }
 };
 
@@ -401,6 +399,7 @@ ocrBtn.onclick = async function () {
   resultInput2.value = "";
   resultInput3.value = "";
   resultInput4.value = "";
+  answer.textContent = "";
 
   manualInput = false;
   attempts = [];
@@ -438,26 +437,59 @@ resetBtn.onclick = function () {
   resetScreen();
 };
 
-resultInput1.oninput = function () {
+resultInput1.onfocus = function () {
+  this.select();
+};
+resultInput1.oninput = function (e) {
   manualInput = true;
-  handleResultInput(this, resultInput2);
   updateAttemptsAndAnswer("1", this.value.toString());
+  handleResultInput(this, resultInput2);
+
+  e.preventDefault();
 };
 
-resultInput2.oninput = function () {
+resultInput2.onfocus = function () {
+  this.select();
+};
+resultInput2.oninput = function (e) {
   manualInput = true;
-  handleResultInput(this, resultInput3);
   updateAttemptsAndAnswer("2", this.value.toString());
+  handleResultInput(this, resultInput3);
+
+  e.preventDefault();
 };
 
-resultInput3.oninput = function () {
+resultInput3.onfocus = function () {
+  this.select();
+};
+resultInput3.oninput = function (e) {
   manualInput = true;
-  handleResultInput(this, resultInput4);
   updateAttemptsAndAnswer("3", this.value.toString());
+  handleResultInput(this, resultInput4);
+
+  e.preventDefault();
 };
 
-resultInput4.oninput = function () {
+resultInput4.onfocus = function () {
+  this.select();
+};
+resultInput4.oninput = function (e) {
   manualInput = true;
-  handleResultInput(this, resultInput1);
   updateAttemptsAndAnswer("4", this.value.toString());
+  handleResultInput(this, resultInput1);
+
+  e.preventDefault();
+};
+
+clear.onclick = function () {
+  resultInput1.value = "";
+  resultInput2.value = "";
+  resultInput3.value = "";
+  resultInput4.value = "";
+  answer.textContent = "";
+
+  manualInput = false;
+  attempts = [];
+
+  document.body.className = ""; // 清除背景色
 };

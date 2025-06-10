@@ -6,17 +6,55 @@
     <title>Maple TOG 400</title>
     <style>
       body {
-        text-align: center;
-        background: #3c3c3c;
+        background-color: rgba(220, 160, 110, 0.8); /* 淡橘色 */
         font-family: "Microsoft JhengHei", Arial, sans-serif;
         margin: 0;
         min-height: 100vh;
+        text-align: center;
+      }
+
+      button {
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        margin: 1%;
+        outline: none;
+        overflow: hidden;
+        padding: 5px 8px;
+        position: relative;
+        transition: all 0.4s ease;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #ece9e6, #ffffff);
+        color: #333;
+      }
+
+      .btn:hover {
+        background: linear-gradient(135deg, #c4c4c4, #dcd9d6);
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .btn:disabled {
+        background: linear-gradient(135deg, #d4d4d4, #ece9e6);
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        color: #888;
+        transform: translateY(1px);
       }
 
       .box {
+        box-sizing: border-box;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
         margin: 0 auto;
         padding: 30px;
-        width: 450px;
+        max-width: 500px;
+        width: 100%;
       }
 
       .resultInput {
@@ -26,7 +64,7 @@
         color: #fff;
         font-size: 24px;
         height: 60px;
-        margin: 15px;
+        margin: 1%;
         outline: none;
         text-align: center;
         transition: all 0.3s ease;
@@ -43,17 +81,33 @@
         transform: translateY(-3px);
       }
 
+      #shareScreenBtn,
+      #ocrBtn,
+      #ocrPauseBtn {
+        flex-basis: 30%;
+      }
+
+      #resetBtn,
+      #clear {
+        flex-basis: 45%;
+      }
+
+      #videoState {
+        color: white;
+        flex-basis: 100%;
+      }
+
       #answer {
         background-color: rgba(0, 0, 0, 0.8);
         border-radius: 5px;
         color: white;
+        flex-basis: 100%;
         font-size: 24px;
         line-height: 65px;
-        margin: 0 auto;
+        margin: 10px;
         min-height: 65px;
         padding: 10px;
-        text-align: center;
-        width: 350px;
+        width: 90%;
       }
 
       #debug {
@@ -62,35 +116,36 @@
       }
 
       .flash {
-        background-color: rgba(155, 155, 100, 0.3); /* 淡黃色 */
+        background-color: rgba(255, 255, 200, 0.5); /* 淡黃色 */
       }
       .searching {
-        background-color: rgba(155, 155, 100, 0.8); /* 淡黃色 */
+        background-color: rgba(255, 255, 200, 0.8); /* 淡黃色 */
       }
       .found {
-        background-color: rgba(100, 155, 100, 0.8); /* 淡綠色 */
+        background-color: rgba(200, 255, 200, 0.8); /* 淡綠色 */
       }
       .error {
-        background-color: rgba(150, 100, 100, 0.8); /* 淡紅色 */
+        background-color: rgba(255, 200, 200, 0.8); /* 淡紅色 */
       }
     </style>
   </head>
   <body>
     <h1>Welcome To Maple TOG 400</h1>
     <div class="box">
-      <button id="shareScreenBtn">分享螢幕</button>
-      <button id="ocrBtn" disabled>辨識 400 結果</button>
-      <button id="ocrPauseBtn" disabled>辨識 400 暫停</button>
-      <button id="resetBtn" disabled>重置</button>
+      <button id="shareScreenBtn" class="btn">分享螢幕</button>
+      <button id="ocrBtn" class="btn" disabled>辨識 400 結果</button>
+      <button id="ocrPauseBtn" class="btn" disabled>辨識 400 暫停</button>
+      <button id="resetBtn" class="btn" disabled>重置分享</button>
+      <button id="clear" class="btn">清除輸入框</button>
     </div>
 
     <div class="box">
-      <p id="videoState"></p>
+      <h2 id="videoState"></h2>
       <input type="text" id="resultInput1" class="resultInput" maxlength="1" />
       <input type="text" id="resultInput2" class="resultInput" maxlength="1" />
       <input type="text" id="resultInput3" class="resultInput" maxlength="1" />
       <input type="text" id="resultInput4" class="resultInput" maxlength="1" />
-      <p id="answer"></p>
+      <div id="answer"></div>
     </div>
 
     <div id="debug">
