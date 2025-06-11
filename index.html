@@ -1,180 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Maple TOG 400</title>
-    <style>
-      body {
-        background-color: rgba(220, 160, 110, 0.8); /* 淡橘色 */
-        font-family: "Microsoft JhengHei", Arial, sans-serif;
-        margin: 0;
-        min-height: 100vh;
-        text-align: center;
-      }
 
-      button {
-        border: none;
-        border-radius: 8px;
-        color: #fff;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 1rem;
-        margin: 1%;
-        outline: none;
-        overflow: hidden;
-        padding: 5px 8px;
-        position: relative;
-        transition: all 0.4s ease;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maple TOG 400</title>
+  <style>
+    body {
+      background-color: rgba(220, 160, 110, 0.8);
+      /* 淡橘色 */
+      font-family: "Microsoft JhengHei", Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      text-align: center;
+    }
 
-      .btn {
-        background: linear-gradient(135deg, #ece9e6, #ffffff);
-        color: #333;
-      }
+    button {
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 1%;
+      outline: none;
+      overflow: hidden;
+      padding: 5px 8px;
+      position: relative;
+      transition: all 0.4s ease;
+    }
 
-      .btn:hover {
-        background: linear-gradient(135deg, #c4c4c4, #dcd9d6);
-        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-        transform: translateY(-1px);
-      }
+    .btn {
+      background: linear-gradient(135deg, #ece9e6, #ffffff);
+      color: #333;
+    }
 
-      .btn:disabled {
-        background: linear-gradient(135deg, #d4d4d4, #ece9e6);
-        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-        color: #888;
-        transform: translateY(1px);
-      }
+    .btn:hover {
+      background: linear-gradient(135deg, #c4c4c4, #dcd9d6);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
+    }
 
-      .box {
-        align-items: center;
-        box-sizing: border-box;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        margin: 0 auto;
-        padding: 30px;
-        max-width: 640px;
-        width: 100%;
-      }
+    .btn:disabled {
+      background: linear-gradient(135deg, #d4d4d4, #ece9e6);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+      color: #888;
+      transform: translateY(1px);
+    }
 
-      .resultInput {
-        background: #2c2c2c;
-        border: 2px solid #ccc8c8;
-        border-radius: 15px;
-        color: #ccc8c8;
-        cursor: pointer;
-        font-size: 1.5rem;
-        height: 60px;
-        margin: 0.5%;
-        outline: none;
-        text-align: center;
-        transition: all 0.3s ease;
-        max-width: 60px;
-      }
+    .box {
+      align-items: center;
+      box-sizing: border-box;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 0 auto;
+      padding: 30px;
+      max-width: 640px;
+      width: 100%;
+    }
 
-      .resultInput:hover {
-        box-shadow: 0 0 20px rgba(88, 88, 88, 0.5), 0 0 40px rgba(88, 88, 88, 0.2), 0 4px 15px rgba(0, 0, 0, 0.2);
-        transform: translateY(-3px);
-      }
+    .resultInput {
+      background: #2c2c2c;
+      border: 2px solid #ccc8c8;
+      border-radius: 15px;
+      color: #ccc8c8;
+      cursor: pointer;
+      font-size: 1.5rem;
+      height: 60px;
+      margin: 0.5%;
+      outline: none;
+      text-align: center;
+      transition: all 0.3s ease;
+      max-width: 60px;
+    }
 
-      .resultInput:focus {
-        box-shadow: 0 0 20px rgba(150 88, 88, 0.8), 0 0 40px rgba(150 88, 88, 0.5), 0 4px 15px rgba(0, 0, 0, 0.3);
-        transform: translateY(-3px);
-      }
+    .resultInput:hover {
+      box-shadow: 0 0 20px rgba(88, 88, 88, 0.5), 0 0 40px rgba(88, 88, 88, 0.2), 0 4px 15px rgba(0, 0, 0, 0.2);
+      transform: translateY(-3px);
+    }
 
-      #shareScreenBtn,
-      #ocrBtn,
-      #ocrPauseBtn,
-      #resetBtn {
-        flex-basis: 40%;
-      }
+    .resultInput:focus {
+      box-shadow: 0 0 20px rgba(150 88, 88, 0.8), 0 0 40px rgba(150 88, 88, 0.5), 0 4px 15px rgba(0, 0, 0, 0.3);
+      transform: translateY(-3px);
+    }
 
-      #clear {
-        flex-basis: 20%;
-      }
+    #shareScreenBtn,
+    #ocrBtn,
+    #ocrPauseBtn,
+    #resetBtn {
+      flex-basis: 40%;
+    }
 
-      #videoState {
-        color: white;
-        flex-shrink: 1px;
-        flex-basis: 100%;
-      }
+    #clear {
+      flex-basis: 20%;
+    }
 
-      #answer {
-        background: #2c2c2c;
-        border-radius: 5px;
-        color: white;
-        flex-basis: 100%;
-        font-size: 2rem;
-        line-height: 65px;
-        margin: 10px;
-        min-height: 65px;
-        padding: 10px;
-        width: 90%;
-      }
+    #videoState {
+      color: white;
+      flex-shrink: 1px;
+      flex-basis: 100%;
+    }
 
-      #howToUse {
-        background: #111;
-        border: 3px solid #ccc8c8;
-        border-radius: 15px;
-        bottom: 20px;
-        color: #ccc8c8;
-        right: 20px;
-        font-size: 1.5rem;
-        height: 60px;
-        position: fixed;
-        width: 60px;
-      }
+    #answer {
+      background: #2c2c2c;
+      border-radius: 5px;
+      color: white;
+      flex-basis: 100%;
+      font-size: 2rem;
+      line-height: 65px;
+      margin: 10px;
+      min-height: 65px;
+      padding: 10px;
+      width: 90%;
+    }
 
-      #debug {
-        display: none;
-        text-align: left;
-      }
+    #howToUse {
+      background: #111;
+      border: 3px solid #ccc8c8;
+      border-radius: 15px;
+      bottom: 20px;
+      color: #ccc8c8;
+      right: 20px;
+      font-size: 1.5rem;
+      height: 60px;
+      position: fixed;
+      width: 60px;
+    }
 
-      .flash {
-        background-color: rgba(255, 255, 200, 0.5); /* 淡黃色 */
-      }
-      .searching {
-        background-color: rgba(255, 255, 200, 0.8); /* 淡黃色 */
-      }
-      .found {
-        background-color: rgba(200, 255, 200, 0.8); /* 淡綠色 */
-      }
-      .error {
-        background-color: rgba(255, 200, 200, 0.8); /* 淡紅色 */
-      }
-    </style>
-  </head>
-  <body>
-    <h1>女神 400 「解放雙手版」</h1>
-    <div class="box">
-      <button id="shareScreenBtn" class="btn">分享螢幕</button>
-      <button id="ocrBtn" class="btn" disabled>開始辨識</button>
-      <button id="ocrPauseBtn" class="btn" disabled>暫停辨識</button>
-      <button id="resetBtn" class="btn" disabled>重置</button>
-    </div>
+    #debug {
+      display: none;
+      text-align: left;
+    }
 
-    <div class="box">
-      <h2 id="videoState"></h2>
-      <input type="text" id="resultInput1" class="resultInput" maxlength="1" />
-      <input type="text" id="resultInput2" class="resultInput" maxlength="1" />
-      <input type="text" id="resultInput3" class="resultInput" maxlength="1" />
-      <input type="text" id="resultInput4" class="resultInput" maxlength="1" />
-      <button id="clear" class="btn">清除</button>
-      <div id="answer"></div>
-    </div>
+    .flash {
+      background-color: rgba(255, 255, 200, 0.5);
+      /* 淡黃色 */
+    }
 
-    <button id="howToUse" class="btn">?</button>
+    .searching {
+      background-color: rgba(255, 255, 200, 0.8);
+      /* 淡黃色 */
+    }
 
-    <div id="debug">
-      <p id="videoInfo"></p>
-      <video id="screenVideo" autoplay></video>
-      <p id="coordinate"></p>
-      <canvas id="capture" width="0" height="0"></canvas>
-      <canvas id="mark1" width="0" height="0"></canvas>
-      <canvas id="mark2" width="0" height="0"></canvas>
-    </div>
-  </body>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@6/dist/tesseract.min.js"></script>
-  <script src="static/js/main.js"></script>
+    .found {
+      background-color: rgba(200, 255, 200, 0.8);
+      /* 淡綠色 */
+    }
+
+    .error {
+      background-color: rgba(255, 200, 200, 0.8);
+      /* 淡紅色 */
+    }
+  </style>
+</head>
+
+<body>
+  <h1>女神 400 「解放雙手版」</h1>
+  <div class="box">
+    <button id="shareScreenBtn" class="btn">分享螢幕</button>
+    <button id="ocrBtn" class="btn" disabled>開始辨識</button>
+    <button id="ocrPauseBtn" class="btn" disabled>暫停辨識</button>
+    <button id="resetBtn" class="btn" disabled>重置</button>
+  </div>
+
+  <div class="box">
+    <h2 id="videoState"></h2>
+    <input type="text" id="resultInput1" class="resultInput" maxlength="1" />
+    <input type="text" id="resultInput2" class="resultInput" maxlength="1" />
+    <input type="text" id="resultInput3" class="resultInput" maxlength="1" />
+    <input type="text" id="resultInput4" class="resultInput" maxlength="1" />
+    <button id="clear" class="btn">清除</button>
+    <div id="answer"></div>
+  </div>
+
+  <!-- <button id="howToUse" class="btn">?</button> -->
+
+  <div id="debug">
+    <p id="videoInfo"></p>
+    <video id="screenVideo" autoplay></video>
+    <p id="coordinate"></p>
+    <canvas id="capture" width="0" height="0"></canvas>
+    <canvas id="mark1" width="0" height="0"></canvas>
+    <canvas id="mark2" width="0" height="0"></canvas>
+  </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@6/dist/tesseract.min.js"></script>
+<script src="static/js/main.js"></script>
+
 </html>
