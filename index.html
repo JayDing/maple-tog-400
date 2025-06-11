@@ -23,7 +23,7 @@
         margin: 1%;
         outline: none;
         overflow: hidden;
-        padding: 5px 5px;
+        padding: 5px 8px;
         position: relative;
         transition: all 0.4s ease;
       }
@@ -54,31 +54,32 @@
         justify-content: space-around;
         margin: 0 auto;
         padding: 30px;
-        max-width: 500px;
+        max-width: 640px;
         width: 100%;
       }
 
       .resultInput {
-        background: #3c3c3c;
+        background: #2c2c2c;
         border: 2px solid #ccc8c8;
         border-radius: 15px;
-        color: #fff;
-        font-size: 24px;
+        color: #ccc8c8;
+        cursor: pointer;
+        font-size: 1.5rem;
         height: 60px;
-        margin: 1%;
+        margin: 0.5%;
         outline: none;
         text-align: center;
         transition: all 0.3s ease;
-        width: 60px;
+        max-width: 60px;
       }
 
       .resultInput:hover {
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(255, 255, 255, 0.1), 0 4px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 0 20px rgba(88, 88, 88, 0.5), 0 0 40px rgba(88, 88, 88, 0.2), 0 4px 15px rgba(0, 0, 0, 0.2);
         transform: translateY(-3px);
       }
 
       .resultInput:focus {
-        box-shadow: 0 0 20px rgba(204, 200, 200, 0.5), 0 0 40px rgba(204, 200, 200, 0.2), 0 4px 15px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 20px rgba(150 88, 88, 0.8), 0 0 40px rgba(150 88, 88, 0.5), 0 4px 15px rgba(0, 0, 0, 0.3);
         transform: translateY(-3px);
       }
 
@@ -86,7 +87,7 @@
       #ocrBtn,
       #ocrPauseBtn,
       #resetBtn {
-        flex-basis: 20%;
+        flex-basis: 40%;
       }
 
       #clear {
@@ -95,20 +96,34 @@
 
       #videoState {
         color: white;
+        flex-shrink: 1px;
         flex-basis: 100%;
       }
 
       #answer {
-        background-color: rgba(0, 0, 0, 0.8);
+        background: #2c2c2c;
         border-radius: 5px;
         color: white;
         flex-basis: 100%;
-        font-size: 24px;
+        font-size: 2rem;
         line-height: 65px;
         margin: 10px;
         min-height: 65px;
         padding: 10px;
         width: 90%;
+      }
+
+      #howToUse {
+        background: #111;
+        border: 3px solid #ccc8c8;
+        border-radius: 15px;
+        bottom: 20px;
+        color: #ccc8c8;
+        right: 20px;
+        font-size: 1.5rem;
+        height: 60px;
+        position: fixed;
+        width: 60px;
       }
 
       #debug {
@@ -131,10 +146,10 @@
     </style>
   </head>
   <body>
-    <h1>Welcome To Maple TOG 400</h1>
+    <h1>女神 400 「解放雙手版」</h1>
     <div class="box">
       <button id="shareScreenBtn" class="btn">分享螢幕</button>
-      <button id="ocrBtn" class="btn" disabled>辨識結果</button>
+      <button id="ocrBtn" class="btn" disabled>開始辨識</button>
       <button id="ocrPauseBtn" class="btn" disabled>暫停辨識</button>
       <button id="resetBtn" class="btn" disabled>重置</button>
     </div>
@@ -148,6 +163,8 @@
       <button id="clear" class="btn">清除</button>
       <div id="answer"></div>
     </div>
+
+    <button id="howToUse" class="btn">?</button>
 
     <div id="debug">
       <p id="videoInfo"></p>

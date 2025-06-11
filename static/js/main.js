@@ -37,7 +37,8 @@ const resultMapping = {
 
 // 儲存每次嘗試的正確答案數量
 let manualInput = false;
-let attempts = [];
+let attempts = [null, null, null, null];
+let result = null;
 
 // 定義頁面元素變數
 const shareScreenBtn = document.getElementById("shareScreenBtn");
@@ -178,6 +179,10 @@ function resetScreen() {
   resultInput4.value = "";
   answer.textContent = "";
 
+  manualInput = false;
+  attempts = [null, null, null, null];
+  result = null;
+
   // 停止螢幕分享
   if (screenVideo.srcObject) {
     const tracks = screenVideo.srcObject.getTracks();
@@ -277,88 +282,73 @@ async function recognizeTimesAndResult() {
   };
 }
 
-function fillInput(inputId, value) {
-  const inputEl = document.getElementById(inputId);
-  if (inputEl) {
-    inputEl.value = value;
-  } else {
-    console.error(`找不到 ID 為 ${inputId} 的輸入欄位`);
-  }
-}
-
 // 計算答案與更新畫面
-function updateAttemptsAndAnswer(timesText, resultText) {
-  // 尋找嘗試次數
-  const attemptMatch = timesText.match(/\s*(\d+)\s*/);
-  if (attemptMatch) {
-    const attemptNumber = parseInt(attemptMatch[1]);
+function updateAttemptsAndAnswer(attemptNumber, resultNumber) {
+  attempts[attemptNumber - 1] = resultNumber;
 
-    // 檢查數字是否合理
-    if (attemptNumber >= 1 && attemptNumber <= 4) {
-      if (!manualInput) {
-        if ((attempts.length === 0 || (attemptNumber === 1 && !attempts.includes(null)))) {
-          attempts = new Array(4).fill(null);
-          document.body.className = "searching";
-        }
-      }
+  // 閃爍效果
+  // document.body.className = "flash";
+  // 檢查是否所有值都已填入（沒有 null）
+  const isComplete = attempts.filter(x => x !== null).length === 4;
 
-      // 尋找正確答案數量
-      const resultMatch = resultText.match(/\s*(\d+)\s*/);
-      if (resultMatch) {
-        const resultNumber = parseInt(resultMatch[1]);
+  setTimeout(() => {
+    document.body.className = isComplete ? (result ? "found" : "error") : "searching";
+  }, 250);
 
-        if (!/^[012]$/.test(resultNumber)) {
-          return;
-        }
+  if (isComplete) {
+    const key = attempts.join("");
 
-        let result = null;
+    result = resultMapping[key];
 
-        attempts[attemptNumber - 1] = resultNumber;
-        fillInput(`resultInput${attemptNumber}`, resultNumber);
-
-        // 閃爍效果
-        // document.body.className = "flash";
-
-        setTimeout(() => {
-          document.body.className = isComplete ? (result ? "found" : "error") : "searching";
-        }, 250);
-
-        // 檢查是否所有值都已填入（沒有 null）
-        const isComplete = attempts.filter(x => x !== null).length === 4;
-        if (isComplete) {
-          const key = attempts.join("");
-
-          result = resultMapping[key];
-
-          if (result) {
-            console.log('找到對應答案:', result);
-            answer.textContent = `答案: ${result}`; // 在畫面上顯示答案
-          } else {
-            console.log('錯誤：沒有找到對應答案');
-            answer.textContent = '無法找到對應答案'; // 顯示錯誤訊息
-          }
-        } else {
-          answer.textContent = `收集中: ${attempts.join(",")}`; // 顯示目前收集的數據
-        }
-      }
+    if (result) {
+      console.log('找到對應答案:', result);
+      answer.textContent = `答案: ${result}`; // 在畫面上顯示答案
+    } else {
+      console.log('錯誤：沒有找到對應答案');
+      answer.textContent = '無法找到對應答案'; // 顯示錯誤訊息
     }
+  } else {
+    answer.textContent = `收集中: ${attempts.join(",")}`; // 顯示目前收集的數據
   }
 
   console.log(`收集結果：[${attempts.join(",")}]`);
 }
 
-function handleResultInput(currentInput, nextInput) {
+function checkInputValue(currentInput) {
   const val = currentInput.value;
   // 只允許 0, 1, 2
   if (!/^[012]$/.test(val)) {
     currentInput.value = '';
-    return;
+    return false;
   }
 
-  // 自動跳到下一個欄位並全選
-  if (nextInput) {
-    nextInput.focus();
-    nextInput.select();
+  return true;
+}
+
+function resetAttemptsAndStatus(attemptNumber) {
+  const shouldReset = !manualInput && attemptNumber === 1 && !attempts.includes(null);
+
+  if (shouldReset) {
+    attempts = [null, null, null, null];
+    answer.textContent = "";
+
+    document.body.className = "searching";
+  }
+}
+
+function handleResultInput(attemptNumber) {
+  let nextId = attemptNumber + 1;
+  if (attemptNumber === 4) {
+    nextId = 1;
+  }
+
+  const nextInputId = `resultInput${nextId}`;
+  const nextInputElement = document.getElementById(nextInputId);
+  if (nextInputElement) {
+    nextInputElement.focus();
+    nextInputElement.select();
+  } else {
+    console.error(`找不到 ID 為 ${nextInputId} 的輸入欄位`);
   }
 }
 
@@ -402,17 +392,52 @@ ocrBtn.onclick = async function () {
   answer.textContent = "";
 
   manualInput = false;
-  attempts = [];
+  attempts = [null, null, null, null];
+  result = null;
 
   async function performOCR() {
     if (manualInput) {
       ocrPauseBtn.click();
-      return
+      return;
     }
 
     const ocrResult = await recognizeTimesAndResult();
     if (!ocrResult) return;
-    updateAttemptsAndAnswer(ocrResult.timesText, ocrResult.resultText);
+
+    // 尋找嘗試次數
+    const attemptMatch = ocrResult.timesText.match(/\s*(\d+)\s*/);
+    if (!attemptMatch) {
+      return;
+    }
+
+    const attemptNumber = parseInt(attemptMatch[1]);
+    // 檢查數字是否合理
+    if (attemptNumber < 1 || attemptNumber > 4) {
+      return;
+    }
+
+    resetAttemptsAndStatus(attemptNumber);
+
+    // 尋找正確答案數量
+    const resultMatch = ocrResult.resultText.match(/\s*(\d+)\s*/);
+    if (!resultMatch) {
+      return;
+    }
+
+    const resultNumber = parseInt(resultMatch[1]);
+    if (!/^[012]$/.test(resultNumber)) {
+      return;
+    }
+
+    updateAttemptsAndAnswer(attemptNumber, resultNumber);
+
+    const inputId = `resultInput${attemptNumber}`;
+    const inputElement = document.getElementById(inputId);
+    if (inputElement) {
+      inputElement.value = resultNumber;
+    } else {
+      console.error(`找不到 ID 為 ${inputId} 的輸入欄位`);
+    }
   }
 
   // 建立定時執行的 OCR 函數
@@ -441,9 +466,13 @@ resultInput1.onfocus = function () {
   this.select();
 };
 resultInput1.oninput = function (e) {
+  const attemptNumber = 1;
+
   manualInput = true;
-  updateAttemptsAndAnswer("1", this.value.toString());
-  handleResultInput(this, resultInput2);
+  if (checkInputValue(this)) {
+    updateAttemptsAndAnswer(attemptNumber, parseInt(this.value));
+    handleResultInput(attemptNumber);
+  }
 
   e.preventDefault();
 };
@@ -452,20 +481,27 @@ resultInput2.onfocus = function () {
   this.select();
 };
 resultInput2.oninput = function (e) {
+  const attemptNumber = 2;
+
   manualInput = true;
-  updateAttemptsAndAnswer("2", this.value.toString());
-  handleResultInput(this, resultInput3);
+  if (checkInputValue(this)) {
+    updateAttemptsAndAnswer(attemptNumber, parseInt(this.value));
+    handleResultInput(attemptNumber);
+  }
 
   e.preventDefault();
 };
-
 resultInput3.onfocus = function () {
   this.select();
 };
 resultInput3.oninput = function (e) {
+  const attemptNumber = 3;
+
   manualInput = true;
-  updateAttemptsAndAnswer("3", this.value.toString());
-  handleResultInput(this, resultInput4);
+  if (checkInputValue(this)) {
+    updateAttemptsAndAnswer(attemptNumber, parseInt(this.value));
+    handleResultInput(attemptNumber);
+  }
 
   e.preventDefault();
 };
@@ -474,9 +510,13 @@ resultInput4.onfocus = function () {
   this.select();
 };
 resultInput4.oninput = function (e) {
+  const attemptNumber = 4;
+
   manualInput = true;
-  updateAttemptsAndAnswer("4", this.value.toString());
-  handleResultInput(this, resultInput1);
+  if (checkInputValue(this)) {
+    updateAttemptsAndAnswer(attemptNumber, parseInt(this.value));
+    handleResultInput(attemptNumber);
+  }
 
   e.preventDefault();
 };
@@ -489,7 +529,8 @@ clear.onclick = function () {
   answer.textContent = "";
 
   manualInput = false;
-  attempts = [];
+  attempts = [null, null, null, null];
+  result = null;
 
   document.body.className = ""; // 清除背景色
 };
