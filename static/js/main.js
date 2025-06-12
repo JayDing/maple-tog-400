@@ -325,15 +325,18 @@ function checkInputValue(currentInput) {
   return true;
 }
 
-function resetAttemptsAndStatus(attemptNumber) {
-  const shouldReset = !manualInput && attemptNumber === 1 && !attempts.includes(null);
+function resetAttemptsAndStatus() {
+  manualInput = false;
 
-  if (shouldReset) {
-    attempts = [null, null, null, null];
-    answer.textContent = "";
+  resultInput1.value = "";
+  resultInput2.value = "";
+  resultInput3.value = "";
+  resultInput4.value = "";
 
-    document.body.className = "searching";
-  }
+  attempts = [null, null, null, null];
+  answer.textContent = "";
+
+  document.body.className = ""; // 清除背景色
 }
 
 function handleResultInput(attemptNumber) {
@@ -385,15 +388,8 @@ ocrBtn.onclick = async function () {
   ocrPauseBtn.disabled = false;
 
   videoState.textContent = "OCR 辨識中...";
-  resultInput1.value = "";
-  resultInput2.value = "";
-  resultInput3.value = "";
-  resultInput4.value = "";
-  answer.textContent = "";
 
-  manualInput = false;
-  attempts = [null, null, null, null];
-  result = null;
+  resetAttemptsAndStatus();
 
   async function performOCR() {
     if (manualInput) {
@@ -416,7 +412,11 @@ ocrBtn.onclick = async function () {
       return;
     }
 
-    resetAttemptsAndStatus(attemptNumber);
+    const shouldReset = !manualInput && attemptNumber === 1 && !attempts.includes(null);
+    if (shouldReset) {
+      resetAttemptsAndStatus();
+      document.body.className = "searching";
+    }
 
     // 尋找正確答案數量
     const resultMatch = ocrResult.resultText.match(/\s*(\d+)\s*/);
@@ -522,15 +522,5 @@ resultInput4.oninput = function (e) {
 };
 
 clear.onclick = function () {
-  resultInput1.value = "";
-  resultInput2.value = "";
-  resultInput3.value = "";
-  resultInput4.value = "";
-  answer.textContent = "";
-
-  manualInput = false;
-  attempts = [null, null, null, null];
-  result = null;
-
-  document.body.className = ""; // 清除背景色
+  resetAttemptsAndStatus();
 };
